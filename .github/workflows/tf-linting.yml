@@ -61,3 +61,29 @@ jobs:
           ref: '${{ inputs.action_ref }}'
       - name: 'running tfsec'
         uses: './.github/actions/tfsec'
+
+  trivy:
+    name: 'trivy'
+    runs-on:
+      group: 'cloud'
+    steps:
+      - uses: 'actions/checkout@v4'
+      - name: 'Checkout GitHub actions repo'
+        uses: 'actions/checkout@v4'
+        with:
+          repository: 'icariohealth/pf-github-actions'
+          token: '${{ secrets.ci_token }}'
+          path: '.github/actions'
+          ref: '${{ inputs.action_ref }}'
+      - name: 'running trivy'
+        uses: './.github/actions/trivy'
+        with:
+          skip-dirs: '.github'
+          scan-type: 'fs'
+          scan-ref: '.'
+          hide-progress: false
+          format: 'table'
+          scanners: 'vuln,secret,misconfig'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH,MEDIUM'
