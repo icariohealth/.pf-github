@@ -1,7 +1,13 @@
+---
 name: CI workflows
 
 on:
   workflow_call:
+    inputs:
+      continue_on_error:
+        type: boolean
+        description: continue on error flag
+        required: true
     secrets:
       SONAR_TOKEN:
         required: true
@@ -9,10 +15,6 @@ on:
         required: true
       JFROG_PASSWORD:
         required: true
-  pull_request:
-    types: [opened, synchronize, reopened]
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -91,4 +93,4 @@ jobs:
          JFROG_USERNAME: ${{ secrets.JFROG_USERNAME || secrets.ARTIFACTORY_HP_USER }}
          JFROG_PASSWORD: ${{ secrets.JFROG_PASSWORD || secrets.ARTIFACTORY_HP_PASSWORD }}
        run:  ./gradlew clean jacocoTestReport sonar
-       continue-on-error: true # should be removed after sonar project created
+       continue-on-error: ${{ inputs.continue_on_error }}
