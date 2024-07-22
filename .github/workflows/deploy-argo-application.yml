@@ -94,7 +94,7 @@ jobs:
         if: ${{ inputs.environment == 'prod' }}
         uses: 'cycjimmy/semantic-release-action@v4'
         with:
-          branch: 'main'
+          branch: test
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
