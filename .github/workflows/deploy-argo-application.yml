@@ -39,6 +39,16 @@ jobs:
       - name: Check out sources code
         uses: actions/checkout@v4
 
+      - name: 'Release'
+        if: ${{ inputs.environment }} == 'prod'
+        uses: 'cycjimmy/semantic-release-action@v4'
+        with:
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
+
       - name: Create PR promote image tag
         id: createPrId
         env:
