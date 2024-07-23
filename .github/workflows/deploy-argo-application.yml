@@ -38,9 +38,11 @@ jobs:
 
       - name: Check out sources code
         uses: actions/checkout@v4
+
       - name: Extract branch name
         id: extract_branch
-        run: echo "##[set-output name=branch;]${GITHUB_REF#refs/heads/}"
+        run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+
       - name: Create PR promote image tag
         id: createPrId
         env:
@@ -96,7 +98,7 @@ jobs:
         if: ${{ inputs.environment == 'prod' }}
         uses: 'cycjimmy/semantic-release-action@v4'
         with:
-          branch: test
+          branch: ${{ steps.extract_branch.outputs.branch }}
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
