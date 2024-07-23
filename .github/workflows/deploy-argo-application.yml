@@ -101,10 +101,6 @@ jobs:
           branch: ${{ steps.extract_branch.outputs.branch }}
           extra_plugins: |
             "@semantic-release/github"
-            {
-              "successComment": false,
-              "failTitle": false
-            }
             "@semantic-release/changelog"
             "@semantic-release/git"
         env:
