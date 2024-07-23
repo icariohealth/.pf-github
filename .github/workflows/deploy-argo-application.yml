@@ -98,6 +98,7 @@ jobs:
         if: ${{ inputs.environment == 'prod' }}
         uses: 'cycjimmy/semantic-release-action@v4'
         with:
+          semantic_version: 24.0.0
           branch: ${{ steps.extract_branch.outputs.branch }}
           extra_plugins: |
             "@semantic-release/github"
