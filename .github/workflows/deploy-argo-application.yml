@@ -112,7 +112,7 @@ jobs:
         id: determine_revision
         run: |
           if [[ "${{ steps.semantic.outputs.new_release_published }}" == 'true' ]]; then
-            echo "target_revision=v${{ steps.semantic.outputs.new_release_version }}" >> $GITHUB_OUTPUT
+            echo "target_revision=${{ steps.semantic.outputs.new_release_git_tag }}" >> $GITHUB_OUTPUT
           else
             echo "target_revision=${{ steps.extract_branch.outputs.branch }}" >> $GITHUB_OUTPUT
           fi
