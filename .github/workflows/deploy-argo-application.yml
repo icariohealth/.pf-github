@@ -108,15 +108,23 @@ jobs:
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
 
+      - name: Determine target revision
+        id: determine_revision
+        run: |
+          if [[ "${{ steps.semantic.outputs.new_release_published }}" == 'true' ]]; then
+            echo "target_revision='v${{ steps.semantic.outputs.new_release_version }}'" >> $GITHUB_OUTPUT
+          else
+            echo "target_revision=${{ steps.extract_branch.outputs.branch }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy Application
         env:
           APPLICATION_PATH: app-managers/overlays/${{ inputs.environment }}
           APPLICATION_FILE_NAME: application-${{ inputs.environment }}.yaml
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
           SERVER_ADDRESS: argo.dep.icariohealth.io
+          TARGET_REVISION: ${{ steps.determine_revision.outputs.target_revision }}
         run: |
-          if [[ "${{ steps.semantic.outputs.new_release_published }}" == 'true' ]]; then
-            echo -e "\n- op: 'replace'\n  path: '/spec/source/targetRevision'\n  value: 'v${{ steps.semantic.outputs.new_release_version  }}'" >> $APPLICATION_PATH/application.yaml
-          fi
+          echo -e "\n- op: 'replace'\n  path: '/spec/source/targetRevision'\n  value: '$TARGET_REVISION'" >> $APPLICATION_PATH/application.yaml
           kustomize build $APPLICATION_PATH > $APPLICATION_FILE_NAME
           argocd app create -f  $APPLICATION_FILE_NAME --auth-token $ARGOCD_AUTH_TOKEN --server $SERVER_ADDRESS --upsert
