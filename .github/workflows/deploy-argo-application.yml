@@ -97,6 +97,7 @@ jobs:
       - name: 'Release'
         if: ${{ inputs.environment == 'prod' }}
         uses: 'cycjimmy/semantic-release-action@v4'
+        id: semantic
         with:
           semantic_version: 24.0.0
           branch: ${{ steps.extract_branch.outputs.branch }}
@@ -114,5 +115,8 @@ jobs:
           ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
           SERVER_ADDRESS: argo.dep.icariohealth.io
         run: |
+          if [[ "${{ steps.semantic.outputs.new_release_published }}" == 'true' ]]; then
+            echo -e "\n- op: 'replace'\n  path: '/spec/source/targetRevision'\n  value: 'v${{ steps.semantic.outputs.new_release_version  }}'" >> $APPLICATION_PATH/application.yaml
+          fi
           kustomize build $APPLICATION_PATH > $APPLICATION_FILE_NAME
           argocd app create -f  $APPLICATION_FILE_NAME --auth-token $ARGOCD_AUTH_TOKEN --server $SERVER_ADDRESS --upsert
