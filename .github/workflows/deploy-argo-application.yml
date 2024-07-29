@@ -111,7 +111,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            await github.git.createRef({
+            github.rest.git.createRef({
               owner,
               repo,
               ref: `refs/tags/${newTag}`,
