@@ -11,10 +11,6 @@ on:
         type: string
         description: service name
         required: true
-      next_release_version:
-        type: string
-        description: service name
-        required: false
     secrets:
       ARGOCD_AUTH_TOKEN:
         required: true
@@ -99,10 +95,10 @@ jobs:
           gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
       - name: 'Pre-Release'
-        if: ${{ inputs.environment == 'tst' && inputs.next_release_version != '' }}
+        if: ${{ inputs.environment == 'tst' && env.NEXT_RELEASE_VERSION != '' }}
         uses: actions/github-script@v7
         env:
-          NEXT_RELEASE_VERSION: ${{ inputs.next_release_version }}
+          NEXT_RELEASE_VERSION: ${{ env.NEXT_RELEASE_VERSION }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
