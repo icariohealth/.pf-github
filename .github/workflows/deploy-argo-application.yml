@@ -129,6 +129,8 @@ jobs:
             });
             console.log(`Created new tag ${newTag}`);
             return { rc_tag: newTag, new_rc_release_published: true };
+            core.setOutput('rc_tag', newTag)
+            core.setOutput('new_rc_release_published', true)
 
       - name: 'Release'
         if: ${{ inputs.environment == 'prod' }}
