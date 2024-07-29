@@ -94,6 +94,21 @@ jobs:
         run: |
           gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
+      - name: 'Pre-Release'
+        if: ${{ inputs.environment == 'tst' }}
+        uses: 'cycjimmy/semantic-release-action@v4'
+        id: semantic_rc
+        with:
+          semantic_version: 24.0.0
+          branch: ${{ steps.extract_branch.outputs.branch }}
+          tag_format: v${version}-rc
+          extra_plugins: |
+            "@semantic-release/github"
+            "@semantic-release/changelog"
+            "@semantic-release/git"
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
+
       - name: 'Release'
         if: ${{ inputs.environment == 'prod' }}
         uses: 'cycjimmy/semantic-release-action@v4'
@@ -113,6 +128,8 @@ jobs:
         run: |
           if [[ "${{ steps.semantic.outputs.new_release_published }}" == 'true' ]]; then
             echo "target_revision=${{ steps.semantic.outputs.new_release_git_tag }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ steps.semantic_rc.outputs.new_release_published }}" == 'true' ]]; then
+            echo "target_revision=${{ steps.semantic_rc.outputs.new_release_git_tag }}" >> $GITHUB_OUTPUT
           else
             echo "target_revision=${{ steps.extract_branch.outputs.branch }}" >> $GITHUB_OUTPUT
           fi
