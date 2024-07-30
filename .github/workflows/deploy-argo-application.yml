@@ -11,9 +11,17 @@ on:
         type: string
         description: service name
         required: true
+      sematic_new_release_version:
+        type: string
+        description: the sematic release version
+        required: false
     secrets:
       ARGOCD_AUTH_TOKEN:
         required: true
+    outputs:
+      sematic_new_release_version:
+        description: the sematic release version
+        value: ${{ steps.semantic.outputs.new_release_git_tag }}
 
 permissions:
   id-token: write
@@ -118,6 +126,8 @@ jobs:
         run: |
           if [[ "${{ steps.semantic.outputs.new_release_published }}" == 'true' ]]; then
             echo "target_revision=${{ steps.semantic.outputs.new_release_git_tag }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ inputs.sematic_new_release_version }}" != '' ]]; then
+            echo "target_revision=${{ inputs.sematic_new_release_version }}" >> $GITHUB_OUTPUT
           else
             echo "target_revision=${{ steps.extract_branch.outputs.branch }}" >> $GITHUB_OUTPUT
           fi
