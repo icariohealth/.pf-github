@@ -52,6 +52,8 @@ jobs:
           branch: ${{ steps.extract_branch.outputs.branch }}
           dry_run: true
           extra_plugins: |
+            "@semantic-release/github"
+            "@semantic-release/changelog"
             "@semantic-release/git"
             "@semantic-release/exec"
         env:
@@ -125,6 +127,7 @@ jobs:
             "@semantic-release/github"
             "@semantic-release/changelog"
             "@semantic-release/git"
+            "@semantic-release/exec"
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
 
