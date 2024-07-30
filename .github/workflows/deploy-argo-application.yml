@@ -114,7 +114,8 @@ jobs:
           gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
       - name: 'Release'
-        if: ${{ env.NEXT_RELEASE_VERSION != '' }}
+        # if: ${{ env.NEXT_RELEASE_VERSION != '' }}
+        if: ${{ inputs.environment == 'prod' }}
         uses: 'cycjimmy/semantic-release-action@v4'
         id: semantic
         with:
