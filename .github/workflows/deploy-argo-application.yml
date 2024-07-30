@@ -43,29 +43,12 @@ jobs:
         id: extract_branch
         run: echo "branch=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
 
-      - name: 'Pre-Release'
-        if: ${{ inputs.environment == 'tst' }}
-        uses: 'cycjimmy/semantic-release-action@v4'
-        id: semantic_next
-        with:
-          semantic_version: 24.0.0
-          branch: ${{ steps.extract_branch.outputs.branch }}
-          dry_run: true
-          extra_plugins: |
-            "@semantic-release/github"
-            "@semantic-release/changelog"
-            "@semantic-release/git"
-            "@semantic-release/exec"
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN  }}'
-
       - name: Create PR promote image tag
         id: createPrId
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           KUSTOMIZATION_PATH: manifests/overlays/${{ inputs.environment }}/kustomization.yaml
           SERVICE_NAME: ${{ inputs.service_name }}
-          NEXT_RELEASE_VERSION: ${{ env.NEXT_RELEASE_VERSION }}
         run: |
           # configure git client
           git config user.name github-actions
@@ -85,7 +68,7 @@ jobs:
           git checkout ${{ steps.extract_branch.outputs.branch }} $KUSTOMIZATION_PATH
           yq e -i '.images[0].newTag= env(IMAGE_TAG)' $KUSTOMIZATION_PATH
           git add $KUSTOMIZATION_PATH
-          if [ "$NEXT_RELEASE_VERSION" != '' ]; then
+          if [ "${{ inputs.environment }}" != 'tst' ]; then
             yq e -i '.images[0].newTag= env(IMAGE_TAG)' manifests/overlays/prod/kustomization.yaml
             git add manifests/overlays/prod/kustomization.yaml
           fi
@@ -116,8 +99,7 @@ jobs:
           gh pr merge ${{ env.NEW_BRANCH }} --merge --admin --delete-branch
 
       - name: 'Release'
-        # if: ${{ env.NEXT_RELEASE_VERSION != '' }}
-        if: ${{ inputs.environment == 'prod' }}
+        if: ${{ inputs.environment == 'tst' }}
         uses: 'cycjimmy/semantic-release-action@v4'
         id: semantic
         with:
